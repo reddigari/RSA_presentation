@@ -1,0 +1,449 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>RSA</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/samir.css">
+
+		<script src="js/d3.min.js"></script>
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section class="center">
+					<h2>Representational Similarity Analysis</h2>
+					<h5>Overview and Considerations for MEG</h5>
+					<br>
+					<h4 style="color: #cfcfcf">September 27, 2016</h4>
+				</section>
+
+				<section class="center">
+					<h4 class="fragment">Description</h4><br>
+					<h4 class="fragment">Motivation</h4><br>
+					<h4 class="fragment">MEG Implementation</h4><br>
+					<h4 class="fragment">Examples</h4>
+				</section>
+
+                <section class="center">
+                    <h1 style="text-align: center">WHAT IS IT?</h2>
+                </section>
+
+				<section>
+					<h3>RSA</h3>
+					Kriegeskorte et al., 2008
+					<blockquote class="fragment fade-up">
+						Neuroscientific theory must abstract from the idiosyncrasies of particular empirical modalities. To this end, we need a modality-independent way of characterizing a brain region’s representation. ... One way of characterizing the information a brain region represents is in terms of the mental states (e.g., stimulus percepts) it distinguishes.
+					</blockquote>
+				</section>
+
+				<section>
+					<h3>RSA</h3>
+					<ul class="full">
+						<li class="fragment">Interpret brain data pattern as representation of stimulus</li>
+						<li class="fragment">Compare those patterns between pairs of stimuli</li>
+                        <ul>
+						    <li class="fragment">Assumes (dis)similar content should manifest (dis)similarly in the brain</li>
+                        </ul>
+                        <li class="fragment">Inference based on comparisons of dissimilarity</li>
+                        <ul class="fragment">
+                            <li>Between brain regions</li>
+                            <li>Between model and brain data</li>
+                            <li>Between subjects</li>
+                        </ul>
+					</ul>
+				</section>
+
+				<section>
+					<h3>RSA</h3>
+					<img src="kriegeskorte_2013_box1fig1.jpg" width="800"/>
+					<span class="caption">Kriegeskorte &amp; Kievit, 2013: Box 1 Figure 1</span>
+				</section>
+
+				<section>
+					<h3>Representational Dissimilarity Matrix</h3>
+					<ul>
+						<li class="fragment">Each cell shows dissimilarity between two items</li>
+						<ul>
+							<li class="fragment">Usually correlation distance ($1-r$)</li>
+							<li class="fragment">Distance metric matters (we'll return to this)</li>
+						</ul>
+						<li class="fragment">Symmetric about diagonal of zeros</li>
+					</ul>
+					<img src="kriegeskorte_2008_fig10_partial.jpg"/>
+					<span class="caption">Kriegeskorte et al., 2008: Fig. 10</span>
+				</section>
+
+                <section>
+                    <h3>RDMs</h3>
+                    <p>We can also build RDMs from:</p>
+                    <h4 class="fragment">Models</h4>
+                    <ul>
+                        <li class="fragment">Categorical (similar or not?)</li>
+                        <li class="fragment">Feature-vectors</li>
+                        <li class="fragment">Computational models</li>
+                        <li class="fragment">One-at-a-time variables (magnitude difference)</li>
+                    </ul>
+
+                    <h4 class="fragment">Behavioral Data</h4>
+                    <ul>
+                        <li class="fragment">Similarity judgments</li>
+                        <li class="fragment">RT / Accuracies</li>
+                    </ul>
+                </section>
+
+                <section class="center">
+                    <img src="kriegeskorte_2008_fig3A.jpg" width="50%"/>
+                    <ul style="float:right; width: 40%">
+                        <li>Quantitative relationships between stimuli</li>
+                        <li><b>Modality-independent</b>
+                    </ul>
+                    <span class="caption">Kriegeskorte et al., 2008: Fig. 3A</span>
+
+                </section>
+
+				<section id="chart1">
+                    <h3>Comparing RDMs</h3>
+                    <ul>
+                        <li class="fragment">RDMs can be quantitatively compared with the same distance metrics</li>
+                        <li class="fragment">Use only upper (or lower) triangle of each RDM ($\binom{N}{2}$ unique pairs)</li>
+                        <li class="fragment">Calculate correlation between them (Pearson, Spearman, etc.)</li>
+                    </ul>
+                    <svg width="800", height="260"></svg>
+                    <!-- <li class="fragment" style="list-style: none">$\text{corr}(\vec{model}, \vec{brain})$</li> -->
+                    <!-- <div style="position: absolute; left: 650;;">$\{ corr. = x$</div> -->
+                    <button onclick="go();">Go</button>
+				</section>
+
+                <section>
+                    <h3>Significance Testing</h3>
+                    <span class="fragment">
+                    <h4>RDM Permutation</h4>
+                    <ul>
+                        <li>Permute columns of one RDM; recalculate correlation</li>
+                    </ul>
+                    </span>
+                    <span class="fragment">
+                    <h4>Bootstrap</h4>
+                    <ul>
+                        <li>Remake <b>both</b> RDMs by sampling (with replacement) original conditions; recalculate correlation</li>
+                    </ul>
+                    </span>
+                    <span class="fragment">
+                    <h4>Permutation Cluster Tests</h4>
+                    <ul>
+                        <li>(Spatio)temporal clusters where correlation > 0 across group</li>
+                    </ul>
+                    </span>
+                </section>
+
+                <section class="center">
+                    <h1 style="text-align: center">WHAT'S IT GOOD FOR?</h2>
+                </section>
+
+                <section>
+                    <h3>Common Ground</h3>
+                    Interface for any modality assuming same stimulus set
+                    <img src="kriegeskorte_2008_fig3B.jpg" class="centerImg"/>
+                    <span class="caption">Kriegeskorte et al., 2008: Fig. 3B</span>
+                </section>
+
+                <section>
+                    <h3>Visualization with MDS</h3>
+                    <p>Dimensionality reduction to view relationships in 2D</p>
+                    <div class="fragment", style="display: inline-block; width: 40%">
+                        <img src="kriegeskorte_2008_fig2_partial.jpg">
+                        Within-RDM
+                        <span class="caption">Kriegeskorte et al., 2008: Fig. 2 (partial)</span>
+
+                    </div>
+                    <div class="fragment", style="display: inline-block; width: 40%">
+                        <img src="kriegeskorte_2008_fig9B.jpg">
+                        Between-RDM
+                        <span class="caption">Kriegeskorte et al., 2008: Fig. 9B</span>
+                    </div>
+
+                </section>
+
+                <section>
+                    <h3><b>Not</b> good for...</h3>
+                    <ul class="full" style="list-style: none">
+                    <li class="fragment">...linear modeling of brain activity.</li>
+                    <li class="fragment">...exploratory designs.</li>
+                    <li class="fragment">...testing many continuous variables.</li
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Good for...</h3>
+                    <ul class="full" style="list-style: none">
+                    <li class="fragment">...experiments with strong priors about how stimuli/conditions will pattern.</li>
+                    <li class="fragment">...comparing specific theoretical/computational accounts.</li>
+                    <li class="fragment">...identifying neural correlates of behavioral effects.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Pattern-sensitivity</h3>
+                    <img src="kriegeskorte_2013_fig1.jpg"  height="500" class="centerImg"/>
+										<span class="caption">Kriegeskorte &amp; Kievit, 2013: Figure 1</span>
+                </section>
+
+                <section>
+                    <h3>Pattern <u>in</u>sensitivity</h3>
+                    <ul>
+                        <li class="fragment" data-fragment-index="1">Signals can be perfectly correlated and have different magnitudes</li>
+                        <li class="fragment" data-fragment-index="2">Not "dissimilar" according to $1-r$</li>
+                        <li class="fragment" data-fragment-index="3">Need other distance measure (Euclidean, etc.)</li>
+                        <svg data-fragment-index="1" class="fragment" id="distLines" width="225" height="240" style="display: inline-block; margin-top: 2em"></svg>
+                        <svg data-fragment-index="2" class="fragment" id="corrRDM" width="225" height="240" style="display: inline-block; margin-top: 2em"></svg>
+                        <svg data-fragment-index="3" class="fragment" id="eucRDM" width="225" height="240" style="display: inline-block; margin-top: 2em"></svg>
+                    </ul>
+                </section>
+
+                <section class="center">
+                    <h1>HOW DO WE USE IT?</h1>
+                </section>
+
+								<section>
+									<h3>ROI: Temporal Searchlight</h3>
+									<ul style="width: 50%">
+										<li class="fragment">Time series of RDMs</li>
+										<li class="fragment">Multivariate! Use all sources in ROI instead of averaging</li>
+										<li class="fragment">Sliding time window</li>
+										<li class="fragment">At each timepoint:</li>
+										<ul>
+											<li class="fragment">By-item vectors with length (sources x window size)</li>
+											<li class="fragment">Build data RDM</li>
+											<li class="fragment">Calculate correlation with model RDM</li>
+										</ul>
+									</ul>
+									<span class="fragment">
+									<img src="tyler_2013_fig6.jpg" style="float: right; width: 40%"/>
+									<span class="caption">Tyler et al., 2013: Fig. 6B</span>
+								</span>
+								</section>
+								<section>
+									<h3>Spatiotemporal Searchlight</h3>
+									<ul class="full">
+										<li class="fragment">RDMs over space and time</li>
+										<li class="fragment">Data within spatial radius and temporal window of source-timepoint</li>
+										<li class="fragment">Spatiotemporal map of model-brain correlations</li>
+									</ul>
+								</section>
+
+								<section>
+									<h3>Significance Testing</h3>
+									<ul class="full">
+										<span class="fragment">
+                    <h4>Random-effects</h4>
+                    <ul>
+                        <li>Permute sign of correlation 10,000 times; build null distribution of largest clusters</li>
+												<li>(Su et al., 2012; Tyler et al., 2013)
+                    </ul>
+										</span>
+										<span class="fragment">
+                    <h4>Fixed-effects</h4>
+                    <ul>
+                        <li>Permute data RDM columns at each (source-)timepoint</li>
+												<li>Recalculate correlations; build null distribution of largest clusters</li>
+												<li><b>Needs single trials</b></li>
+                    </ul>
+                    </span>
+									</ul>
+								</section>
+
+								<section class="center">
+                    <h1>EXAMPLE</h1>
+                </section>
+
+								<section class="center">
+										
+								</section>
+
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+				center: false,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/math/math.js', async: true }
+				]
+			});
+		</script>
+        <script>
+        var N = 10,
+            widthN = 15,
+            nums =[ 0.        ,  0.45265699,  0.59323149,  0.40912286,  0.26075623,
+                    0.04328078,  0.29642755,  0.33003086,  0.23908349,  0.22961554,
+                    0.45265699,  0.        ,  0.14057449,  0.04353413,  0.19190077,
+                    0.49593777,  0.15622944,  0.78268786,  0.2135735 ,  0.68227254,
+                    0.59323149,  0.14057449,  0.        ,  0.18410862,  0.33247526,
+                    0.63651226,  0.29680394,  0.92326235,  0.35414799,  0.82284703,
+                    0.40912286,  0.04353413,  0.18410862,  0.        ,  0.14836664,
+                    0.45240364,  0.11269531,  0.73915372,  0.17003937,  0.63873841,
+                    0.26075623,  0.19190077,  0.33247526,  0.14836664,  0.        ,
+                    0.304037  ,  0.03567133,  0.59078709,  0.02167273,  0.49037177,
+                    0.04328078,  0.49593777,  0.63651226,  0.45240364,  0.304037  ,
+                    0.        ,  0.33970833,  0.28675009,  0.28236427,  0.18633477,
+                    0.29642755,  0.15622944,  0.29680394,  0.11269531,  0.03567133,
+                    0.33970833,  0.        ,  0.62645841,  0.05734406,  0.5260431 ,
+                    0.33003086,  0.78268786,  0.92326235,  0.73915372,  0.59078709,
+                    0.28675009,  0.62645841,  0.        ,  0.56911435,  0.10041532,
+                    0.23908349,  0.2135735 ,  0.35414799,  0.17003937,  0.02167273,
+                    0.28236427,  0.05734406,  0.56911435,  0.        ,  0.46869904,
+                    0.22961554,  0.68227254,  0.82284703,  0.63873841,  0.49037177,
+                    0.18633477,  0.5260431 ,  0.10041532,  0.46869904,  0.        ];
+        var nums2 = nums.map(function(d) {return d+(Math.random()*(Math.random() < 0.5 ? -1 : 1));});
+        nums2.forEach(function(d, i) { if (i%N == Math.floor(i/N)) {d = 0;}});
+        var colorScale = d3.scaleLinear().range(["blue", "red"]);
+
+        function drawBoxes() {
+            d3.selectAll(".boxGroup").remove();
+            var g = d3.select("#chart1 svg")
+                .selectAll(".boxGroup")
+                .data([nums, nums2])
+                .enter().append("g")
+                .attr("class", "boxGroup")
+                .attr("transform", function(d, i) {return "translate(" + ((250*i)+5) + ",50)"} );
+            g.selectAll(".rect")
+                .data(function(d) {return d})
+                .enter().append("rect")
+                .attr("class", function(d, i) {return (i > Math.floor(i/N)*N + Math.floor(i/N) ? "keep" : "drop")})
+                .attr("x", function(d, i) {return Math.floor(i%N)*widthN})
+                .attr("y", function(d, i) {return Math.floor(i/N)*widthN})
+                .attr("width", widthN)
+                .attr("height", widthN)
+                .style("fill", function(d) {return colorScale(d);})
+                .style("stroke", "white");
+            d3.selectAll(".boxGroup")
+                .append("text")
+                .attr("font-size", "0.8em")
+                .attr("x", N*widthN*0.5)
+                .attr("y", (N+3)*widthN)
+                .attr("text-anchor", "middle")
+                .style("fill", "white")
+                .text(function(d, i) {return (i==0) ? "Model" : "Brain"});
+        }
+        function dropHalf() {
+            d3.selectAll(".drop")
+            .transition()
+            .style("fill-opacity", 0)
+            .style("stroke-opacity", 0)
+            .remove();
+        }
+        function lineUp() {
+            // d3.selectAll(".boxGroup text").remove();
+            d3.selectAll(".boxGroup")
+            .transition().duration(500)
+            .attr("transform", function(d, i) { return "translate(5," + ((50*i)+50) + ")"});
+            d3.selectAll(".boxGroup").selectAll(".keep")
+            .transition().duration(500)
+            .attr("x", function(d, i) {return i*widthN})
+            .attr("y", 5);
+            d3.selectAll(".boxGroup").selectAll("text")
+            .transition().duration(500)
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("text-anchor", "start");
+        }
+        function go() {
+            drawBoxes();
+            setTimeout(dropHalf, 2000);
+            setTimeout(lineUp, 4000);
+        }
+        </script>
+        <script>
+        var width = 200,
+            height = 200;
+        var xs = [];
+        for (i=0; i<100; i++) xs.push(i);
+        var y1 = xs.map(function(d) {return 0.5*d-3;})
+        var y2 = xs.map(function(d) {return 0.5*d+9;})
+        var y3 = xs.map(function(d) {return 0.5*d+13;})
+				var colors = ["#e06c6c", "#7677f6", "#6efed8","#e06c6c", "#7677f6", "#6efed8"];
+        var g = d3.select("#distLines").append("g")
+            .attr("transform", "translate(25, 25)");
+        var x = d3.scaleLinear().range([0, width]).domain([0, d3.max(xs)]);
+        var y = d3.scaleLinear().range([height, 0]).domain([d3.min(y1), d3.max(y3)]);
+        var xAxis = d3.axisBottom(x).tickSize(0).tickFormat("");
+        var yAxis = d3.axisLeft(y).tickSize(0).tickFormat("");
+				var line = d3.line().x(function(d) {return x(d[0]);}).y(function(d) {return y(d[1]);});
+        g.append("g").call(xAxis).attr("transform", "translate(0, "+(height)+")").selectAll("path").style("stroke", "white");
+        g.append("g").call(yAxis).selectAll("path").style("stroke", "white");
+				g.selectAll(".line")
+					.data([d3.zip(xs, y1), d3.zip(xs, y2), d3.zip(xs, y3)])
+					.enter().append("path")
+					.attr("d", line)
+					.style("stroke", function(d, i) {return colors[i];})
+					.style("stroke-width", 4)
+					.style("fill", "none");
+				var xOrd = d3.scaleBand().domain(['A', 'B', 'C'])
+						.rangeRound([0, width]).padding(0);
+				var yOrd = d3.scaleBand().domain(['A', 'B', 'C'])
+						.rangeRound([0, width]).padding(0);
+				var xOrdAxis = d3.axisTop(xOrd).tickSize(0).tickPadding(5);
+				var yOrdAxis = d3.axisLeft(yOrd).tickSize(0).tickPadding(5);
+				var g2 = d3.select("#corrRDM").append("g")
+            .attr("transform", "translate(25, 25)");
+				g2.append("g").call(yOrdAxis).selectAll("path").style("stroke", "white");
+				g2.append("g").call(xOrdAxis).selectAll("path").style("stroke", "white");
+				g2.selectAll("text").style("fill", function(d, i) {return colors[i]}).attr("font-size", 12);
+				var corrData = []
+				xOrd.domain().forEach(function(d) {xOrd.domain().forEach(function(dd) {corrData.push([d, dd])})});
+				g2.selectAll(".rect")
+						.data(corrData)
+						.enter().append("rect")
+						.attr("x", function(d) {return xOrd(d[0])})
+						.attr("y", function(d) {return yOrd(d[1])})
+						.attr("height", function(d) {return yOrd.bandwidth()})
+						.attr("width", function(d) {return xOrd.bandwidth()})
+						.style("fill", "blue")
+						.style("stroke", "white");
+				var g3 = d3.select("#eucRDM").append("g")
+            .attr("transform", "translate(25, 25)");
+				g3.append("g").call(yOrdAxis).selectAll("path").style("stroke", "white");
+				g3.append("g").call(xOrdAxis).selectAll("path").style("stroke", "white");
+				g3.selectAll("text").style("fill", function(d, i) {return colors[i]}).attr("font-size", 12);
+				var eucData = ["blue", "orange", "red", "orange", "blue", "yellow", "red", "yellow", "blue"];
+				corrData.forEach(function(d, i) {d.push(eucData[i])});
+				g3.selectAll(".rect")
+						.data(corrData)
+						.enter().append("rect")
+						.attr("x", function(d) {return xOrd(d[0])})
+						.attr("y", function(d) {return yOrd(d[1])})
+						.attr("height", function(d) {return yOrd.bandwidth()})
+						.attr("width", function(d) {return xOrd.bandwidth()})
+						.style("fill", function(d) {return d[2]})
+						.style("stroke", "white");
+        </script>
+	</body>
+</html>
